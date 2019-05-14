@@ -1,5 +1,7 @@
 package br.com.postalisonline.api.bean;
 
+import java.util.Map;
+
 /**
  * 
  * @author alessandro.lima@4quality.com.br
@@ -10,7 +12,8 @@ public class RequestToken {
 	private String user;
 	private String email;
 	private String password;
-	private String scope;
+	private String[] scope;
+	private Map<String,Object> claims;
 	
 	public String getUser() {
 		return user;
@@ -30,11 +33,17 @@ public class RequestToken {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public String getScope() {
+	public String[] getScope() {
 		return scope;
 	}
-	public void setScope(String scope) {
+	public void setScope(String[] scope) {
 		this.scope = scope;
+	}
+	public Map<String,Object> getClaims() {
+		return claims;
+	}
+	public void setClaims(Map<String,Object> claims) {
+		this.claims = claims;
 	}
 
 	

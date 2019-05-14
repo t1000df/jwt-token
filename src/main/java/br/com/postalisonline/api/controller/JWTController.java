@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.postalisonline.api.bean.RequestRefreshToken;
 import br.com.postalisonline.api.bean.RequestToken;
 import br.com.postalisonline.api.bean.ResponsePublicKey;
 import br.com.postalisonline.api.bean.ResponseToken;
@@ -36,14 +37,15 @@ public class JWTController {
 
 	@PostMapping("token")
 	@ApiResponses({
-        @ApiResponse(code = 200, message = "Token gerado com sucesso."),
+        @ApiResponse(code = 201, message = "Token gerado com sucesso.", response = ResponseToken.class),
         @ApiResponse(code = 412, message = "Dados inválidos para geração."),
 	})
+	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<ResponseToken> token(@RequestBody RequestToken requestToken) {
 		
 		ResponseToken responseToken = jwtService.generate(requestToken);
 		
-		ResponseEntity<ResponseToken> responseEntity = new ResponseEntity<ResponseToken>(responseToken, HttpStatus.OK);
+		ResponseEntity<ResponseToken> responseEntity = new ResponseEntity<ResponseToken>(responseToken, HttpStatus.CREATED);
 		
 		return responseEntity;
 	}
@@ -73,15 +75,16 @@ public class JWTController {
 		
 	}
 	
-	@GetMapping("refresh")
+	@PostMapping("refresh")
 	@ApiResponses({
-        @ApiResponse(code = 201, message = "Token de acesso gerado."),
+        @ApiResponse(code = 201, message = "Token de acesso gerado.", response = ResponseToken.class),
         @ApiResponse(code = 412, message = "Token de atualização inválido ou expirado."),
 	})
-	public ResponseEntity<ResponseToken> refresh(String refreshToken) {
+	@ResponseStatus(HttpStatus.CREATED)
+	public ResponseEntity<ResponseToken> refresh(@RequestBody RequestRefreshToken refreshToken) {
 		
 		try {
-			ResponseToken responseToken = jwtService.refresh(refreshToken);
+			ResponseToken responseToken = jwtService.refresh(refreshToken.getRefreshToken());
 			return new ResponseEntity<ResponseToken>(responseToken,HttpStatus.CREATED);
 		} catch (JWTException e) {
 			logger.error(e.getLocalizedMessage(), e.getCause());

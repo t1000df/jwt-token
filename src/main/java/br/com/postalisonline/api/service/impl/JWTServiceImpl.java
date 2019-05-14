@@ -30,14 +30,7 @@ import io.jsonwebtoken.Claims;
 @Service
 public class JWTServiceImpl implements JWTService {
 
-	/*
-	 * @Autowired JWTBuilder jwtbuilder;
-	 * 
-	 * @Autowired JWTValidator jwtValidator;
-	 * 
-	 * @Autowired JWTDecode jwtDecode;
-	 */
-	
+		
 	private static String POSTALIS_ISS = "postalis-identitymanager";
 	
 	@Autowired
@@ -73,8 +66,21 @@ public class JWTServiceImpl implements JWTService {
 		Map<String,Object> claims = new HashMap<String,Object>();
 		
 		//tratamento do escopo
-		String scope = (requestToken.getScope()==null  ) ? "default" : requestToken.getScope();
-		claims.put("scope", scope.trim().equals("")?"default":scope);
+		String[] scope = (requestToken.getScope()==null  ) ? new String[]{"default"} : requestToken.getScope();
+		
+		if (scope.length == 0) {
+			scope = new String[]{"default"};
+		}
+		
+		//adicionando o escopo do token
+		claims.put("scope", scope);
+		
+		if (requestToken.getClaims() !=null && !requestToken.getClaims().isEmpty()) {
+			//adicionando os claims solicitados para o token
+			for (String key: requestToken.getClaims().keySet()) {
+				claims.put(key, requestToken.getClaims().get(key));
+			}
+		}
 		
 		//gerando o accesstoken
 		String token = generateAccessToken(requestToken.getUser(), requestToken.getEmail(),claims);
@@ -107,6 +113,9 @@ public class JWTServiceImpl implements JWTService {
 		//adicionando os claims do accessToken no refreshToken.
 		//Essa operação é necessária para gerar um novo accessToken apartir de uma solicitação de refresh.
 		for (String key: claimsA.keySet()) {
+			if (key.equals("jti") || key.equals("type")) {
+				continue;
+			}
 			claimsR.put("accessToken-"+key, claimsA.get(key));
 		}
 		
@@ -155,6 +164,10 @@ public class JWTServiceImpl implements JWTService {
 			
 			Map<String,Object> claimsR =  jwtBuilder.verifyToken(refreshToken, jwtKeys.getPublicKey());
 			
+			if (claimsR == null) {
+				throw new JWTValidateException("Token inválido!");
+			}
+			
 			if (claimsR.containsKey("type")) {
 				
 				String type = (String) claimsR.get("type");
@@ -184,7 +197,7 @@ public class JWTServiceImpl implements JWTService {
 			String sub = (String) claimsA.get("sub");
 			
 			//Gerando novo accessToken
-			String newAccessToken =  jwtBuilder.generateToken(jwtKeys.getPrivateKey(), id, sub, iss, jwtBuilder.getTokenTimeExpiration());  //jwtbuilder.createJWT(id, iss, subject, claimsA);
+			String newAccessToken =  jwtBuilder.generateToken(jwtKeys.getPrivateKey(), id, sub, iss, jwtBuilder.getTokenTimeExpiration(),claimsA);  
 			
 			ResponseToken responseToken = new ResponseToken(newAccessToken, refreshToken);
 			
