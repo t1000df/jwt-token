@@ -140,7 +140,7 @@ public class JWTServiceImpl implements JWTService {
 				"66664330172", 
 				"alessandro.lima@4quality.com.br", 
 				POSTALIS_ISS, 
-				jwtBuilder.getTokenTimeExpiration());
+				jwtBuilder.getTokenTimeExpiration(),claims);
 		
 		return token;
 	}
