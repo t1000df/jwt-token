@@ -8,6 +8,7 @@
   
   <properties>
 	<spring.version>5.1.6.RELEASE</spring.version>
+	<spring.data.jpa.version>2.1.8.RELEASE</spring.data.jpa.version>
 	<java.version>1.8</java.version>
 	<io.jsonwebtoken.version>0.10.5</io.jsonwebtoken.version>
 	<log4j.version>1.2.17</log4j.version>
@@ -36,7 +37,15 @@
       </plugin>
     </plugins>
   </build>
+  <repositories>
+  	<repository>
+			<id>archiva.internal</id>
+			<name>Archiva Internal</name>
+			<url>http://192.168.3.70:9080/repository/internal/</url>
+		</repository>
+  </repositories>
   <dependencies>
+  	<!-- Spring MVC -->
   	<dependency>
   		<groupId>org.springframework</groupId>
   		<artifactId>spring-core</artifactId>
@@ -62,6 +71,24 @@
   		<artifactId>spring-webmvc</artifactId>
   		<version>${spring.version}</version>
   	</dependency>
+  	<!-- Spring Data -->
+  	<dependency>
+	    <groupId>org.hibernate.javax.persistence</groupId>
+	    <artifactId>hibernate-jpa-2.1-api</artifactId>
+	    <version>1.0.2.Final</version>
+	</dependency>
+	<dependency>
+   <groupId>org.hibernate</groupId>
+	   <artifactId>hibernate-entitymanager</artifactId>
+	   <version>5.2.17.Final</version>
+	   <scope>runtime</scope>
+	</dependency>
+  	<dependency>
+	    <groupId>org.springframework.data</groupId>
+	    <artifactId>spring-data-jpa</artifactId>
+	    <version>${spring.data.jpa.version}</version>
+	  </dependency>
+  
   	<dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>javax.servlet-api</artifactId>
@@ -123,10 +150,16 @@
 	</dependency>
 	
 	<!-- Log4j -->
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
+	<dependency>
+		<groupId>log4j</groupId>
+		<artifactId>log4j</artifactId>
+		<version>${log4j.version}</version>
+	</dependency>
+		
+	 <dependency>
+         <groupId>com.microsoft.sqlserver</groupId>
+         <artifactId>sqljdbc4</artifactId>
+         <version>4.0</version>
+     </dependency>	
   </dependencies>
 </project>
