@@ -13,13 +13,14 @@ import org.springframework.stereotype.Service;
 
 import br.com.postalisonline.api.bean.RequestToken;
 import br.com.postalisonline.api.bean.ResponseToken;
-
+import br.com.postalisonline.api.model.UserCredential;
 import br.com.postalisonline.api.security.JWTKeys;
 import br.com.postalisonline.api.security.JWTRS512Builder;
 import br.com.postalisonline.api.security.JWTValidateException;
 
 import br.com.postalisonline.api.service.JWTException;
 import br.com.postalisonline.api.service.JWTService;
+import br.com.postalisonline.api.service.UserService;
 import io.jsonwebtoken.Claims;
 
 /**
@@ -38,6 +39,9 @@ public class JWTServiceImpl implements JWTService {
 	
 	@Autowired
 	JWTKeys jwtKeys;
+	
+	@Autowired
+	UserService userService;
 	
 	@PostConstruct
 	private void generateKeys() {
@@ -61,6 +65,19 @@ public class JWTServiceImpl implements JWTService {
 	@Override
 	public ResponseToken generate(RequestToken requestToken) {
 		
+		//recuperando os dados do usuário
+		UserCredential credential = userService.findByCPF(requestToken.getUser());
+		
+		if (credential == null) {
+			return null;
+		}
+		
+		String password = requestToken.getPassword();
+		
+		if (!password.equals(credential.getSenha())) {
+			return null;
+		}
+		
 		ResponseToken tokenBean = new ResponseToken();
 		
 		Map<String,Object> claims = new HashMap<String,Object>();
@@ -74,6 +91,9 @@ public class JWTServiceImpl implements JWTService {
 		
 		//adicionando o escopo do token
 		claims.put("scope", scope);
+		claims.put("nome", credential.getNome());
+		claims.put("cpf", credential.getCPF());
+		claims.put("matricula", credential.getMatricula());
 		
 		if (requestToken.getClaims() !=null && !requestToken.getClaims().isEmpty()) {
 			//adicionando os claims solicitados para o token

@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +16,6 @@ import br.com.postalisonline.api.bean.RequestRefreshToken;
 import br.com.postalisonline.api.bean.RequestToken;
 import br.com.postalisonline.api.bean.ResponsePublicKey;
 import br.com.postalisonline.api.bean.ResponseToken;
-import br.com.postalisonline.api.entity.User;
 import br.com.postalisonline.api.service.JWTException;
 import br.com.postalisonline.api.service.JWTService;
 import br.com.postalisonline.api.service.UserService;
@@ -112,27 +110,6 @@ public class JWTController {
 		
 	}
 	
-	@GetMapping("user/{id}")
-	@ApiResponses({
-        @ApiResponse(code = 200, message = "Usuário recuperado."),
-        @ApiResponse(code = 204, message = "Usuário não encontrado."),
-	})
-	public ResponseEntity<User> getUsuarioById(@PathVariable("id") String id) {
-		
-		try {
-			
-			User user = userService.get(id);
-			
-			if (user == null) {
-				throw new Exception("Usuário não encontrado.");
-			}
-			
-			return new ResponseEntity<User>(user,HttpStatus.OK);
-		} catch (Exception e) {
-			logger.error(e.getLocalizedMessage(), e.getCause());
-			return new ResponseEntity<User>(HttpStatus.NO_CONTENT);
-		}
-		
-	}
+	
 
 }

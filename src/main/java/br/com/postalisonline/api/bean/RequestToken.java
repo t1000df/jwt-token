@@ -45,6 +45,7 @@ public class RequestToken {
 	public void setClaims(Map<String,Object> claims) {
 		this.claims = claims;
 	}
+	
 
 	
 }

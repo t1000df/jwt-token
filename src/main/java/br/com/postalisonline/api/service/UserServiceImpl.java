@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.postalisonline.api.entity.User;
+import br.com.postalisonline.api.model.UserCredential;
 import br.com.postalisonline.api.repository.UserRepository;
 
 @Service
@@ -13,7 +14,7 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	UserRepository repository;
-
+	
 	@Override
 	public User get(String id) {
 		
@@ -26,6 +27,13 @@ public class UserServiceImpl implements UserService {
 		}
 		
 		return user;
+	}
+
+	@Override
+	public UserCredential findByCPF(String cpf) {
+		
+		return repository.findByCPF(cpf);
+		
 	}
 
 }
