@@ -49,9 +49,12 @@ public class JWTController {
 		
 		ResponseToken responseToken = jwtService.generate(requestToken);
 		
-		ResponseEntity<ResponseToken> responseEntity = new ResponseEntity<ResponseToken>(responseToken, HttpStatus.CREATED);
+		if (responseToken == null) {
+			return new ResponseEntity<ResponseToken>(HttpStatus.PRECONDITION_FAILED);
+		}
 		
-		return responseEntity;
+		return new ResponseEntity<ResponseToken>(responseToken, HttpStatus.CREATED);
+		
 	}
 	
 	@GetMapping("fake")

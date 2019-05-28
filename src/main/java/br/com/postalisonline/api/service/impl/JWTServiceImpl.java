@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import br.com.postalisonline.api.bean.RequestToken;
 import br.com.postalisonline.api.bean.ResponseToken;
 import br.com.postalisonline.api.model.UserCredential;
+import br.com.postalisonline.api.security.Cripto;
 import br.com.postalisonline.api.security.JWTKeys;
 import br.com.postalisonline.api.security.JWTRS512Builder;
 import br.com.postalisonline.api.security.JWTValidateException;
@@ -72,9 +73,10 @@ public class JWTServiceImpl implements JWTService {
 			return null;
 		}
 		
-		String password = requestToken.getPassword();
+		String password = Cripto.criptografar(requestToken.getPassword()).trim();
+		String userPassword = credential.getSenha().trim();
 		
-		if (!password.equals(credential.getSenha())) {
+		if (!password.equals(userPassword)) {
 			return null;
 		}
 		
