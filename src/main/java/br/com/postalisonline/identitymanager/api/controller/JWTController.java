@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.postalisonline.identitymanager.api.service.JWTException;
 import br.com.postalisonline.identitymanager.api.service.JWTService;
 import br.com.postalisonline.identitymanager.api.service.UserService;
+import br.com.postalisonline.identitymanager.bean.RequestAPIToken;
 import br.com.postalisonline.identitymanager.bean.RequestRefreshToken;
 import br.com.postalisonline.identitymanager.bean.RequestToken;
 import br.com.postalisonline.identitymanager.bean.ResponsePublicKey;
@@ -46,6 +47,24 @@ public class JWTController {
 	})
 	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<ResponseToken> token(@RequestBody RequestToken requestToken) {
+		
+		ResponseToken responseToken = jwtService.generate(requestToken);
+		
+		if (responseToken == null) {
+			return new ResponseEntity<ResponseToken>(HttpStatus.PRECONDITION_FAILED);
+		}
+		
+		return new ResponseEntity<ResponseToken>(responseToken, HttpStatus.CREATED);
+		
+	}
+	
+	@PostMapping("tokenapi")
+	@ApiResponses({
+        @ApiResponse(code = 201, message = "Token gerado com sucesso.", response = ResponseToken.class),
+        @ApiResponse(code = 412, message = "Dados inválidos para geração."),
+	})
+	@ResponseStatus(HttpStatus.CREATED)
+	public ResponseEntity<ResponseToken> tokenAPI(@RequestBody RequestAPIToken requestToken) {
 		
 		ResponseToken responseToken = jwtService.generate(requestToken);
 		
