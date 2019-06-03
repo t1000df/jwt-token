@@ -4,7 +4,7 @@
     <!-- Define persistence unit -->
     <persistence-unit name="postalis-api-im">
         <jta-data-source>java:jboss/datasources/PostalisDS</jta-data-source>
-       <class>br.com.postalisonline.api.entity.User</class>
+       <class>br.com.postalisonline.identitymanager.api.entity.User</class>
         <properties>
         	<property name="hibernate.dialect" value="org.hibernate.dialect.SQLServerDialect"/>
       		<property name="show_sql" value="true"/>

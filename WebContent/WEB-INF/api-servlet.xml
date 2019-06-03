@@ -28,12 +28,12 @@
 	
 	<!-- Buscando pelos Beans Spring -->
 	<context:component-scan
-		base-package="br.com.postalisonline.api.*" />
+		base-package="br.com.postalisonline.identitymanager.api.*" />
 	
 	<mvc:default-servlet-handler />
 	
 	<!-- JPA Config -->
- 	<jpa:repositories base-package="br.com.postalisonline.api.repository"/>
+ 	<jpa:repositories base-package="br.com.postalisonline.identitymanager.api.repository"/>
  	
  	<beans:bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
     	<beans:property name="jndiName" value="java:jboss/datasources/PostalisDS"/>
@@ -43,7 +43,7 @@
 	  class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 	    <!-- <property name="dataSource" ref="dataSource" /> -->
 	    <property name="persistenceUnitName" value="postalis-api-im"/>
-	    <property name="packagesToScan" value="br.com.postalisonline.api.entity" />
+	    <property name="packagesToScan" value="br.com.postalisonline.identitymanager.api.entity" />
 	    <property name="jpaVendorAdapter">
 	        <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
 	    </property>
@@ -61,7 +61,8 @@
 	    <property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
 	<tx:annotation-driven />
- 
+    <!-- End JPA Config -->
+    
 	<bean id="viewResolver"
 		class="org.springframework.web.servlet.view.UrlBasedViewResolver">
 		<property name="viewClass"
