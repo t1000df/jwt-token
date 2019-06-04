@@ -1,4 +1,4 @@
-package br.com.postalisonline.api.controller;
+package br.com.postalisonline.identitymanager.api.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.postalisonline.api.bean.RequestRefreshToken;
-import br.com.postalisonline.api.bean.RequestToken;
-import br.com.postalisonline.api.bean.ResponsePublicKey;
-import br.com.postalisonline.api.bean.ResponseToken;
-import br.com.postalisonline.api.service.JWTException;
-import br.com.postalisonline.api.service.JWTService;
+import br.com.postalisonline.identitymanager.api.service.JWTException;
+import br.com.postalisonline.identitymanager.api.service.JWTService;
+import br.com.postalisonline.identitymanager.api.service.UserService;
+import br.com.postalisonline.identitymanager.bean.RequestAPIToken;
+import br.com.postalisonline.identitymanager.bean.RequestRefreshToken;
+import br.com.postalisonline.identitymanager.bean.RequestToken;
+import br.com.postalisonline.identitymanager.bean.ResponsePublicKey;
+import br.com.postalisonline.identitymanager.bean.ResponseToken;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -34,6 +36,9 @@ public class JWTController {
 	
 	@Autowired
 	JWTService jwtService;
+	
+	@Autowired
+	UserService userService;
 
 	@PostMapping("token")
 	@ApiResponses({
@@ -45,9 +50,30 @@ public class JWTController {
 		
 		ResponseToken responseToken = jwtService.generate(requestToken);
 		
-		ResponseEntity<ResponseToken> responseEntity = new ResponseEntity<ResponseToken>(responseToken, HttpStatus.CREATED);
+		if (responseToken == null) {
+			return new ResponseEntity<ResponseToken>(HttpStatus.PRECONDITION_FAILED);
+		}
 		
-		return responseEntity;
+		return new ResponseEntity<ResponseToken>(responseToken, HttpStatus.CREATED);
+		
+	}
+	
+	@PostMapping("tokenapi")
+	@ApiResponses({
+        @ApiResponse(code = 201, message = "Token gerado com sucesso.", response = ResponseToken.class),
+        @ApiResponse(code = 412, message = "Dados inválidos para geração."),
+	})
+	@ResponseStatus(HttpStatus.CREATED)
+	public ResponseEntity<ResponseToken> tokenAPI(@RequestBody RequestAPIToken requestToken) {
+		
+		ResponseToken responseToken = jwtService.generate(requestToken);
+		
+		if (responseToken == null) {
+			return new ResponseEntity<ResponseToken>(HttpStatus.PRECONDITION_FAILED);
+		}
+		
+		return new ResponseEntity<ResponseToken>(responseToken, HttpStatus.CREATED);
+		
 	}
 	
 	@GetMapping("fake")
@@ -105,5 +131,7 @@ public class JWTController {
 		}
 		
 	}
+	
+	
 
 }

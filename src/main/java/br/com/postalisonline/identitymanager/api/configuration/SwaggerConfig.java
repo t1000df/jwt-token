@@ -1,4 +1,4 @@
-package br.com.postalisonline.api.configuration;
+package br.com.postalisonline.identitymanager.api.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +23,7 @@ public class SwaggerConfig {
           .useDefaultResponseMessages(false)		
           .select()                                  
           //.apis(RequestHandlerSelectors.any())    
-          .apis(RequestHandlerSelectors.basePackage("br.com.postalisonline.api.controller"))
+          .apis(RequestHandlerSelectors.basePackage("br.com.postalisonline.identitymanager.api.controller"))
           .paths(PathSelectors.any())                          
           .build()
           .apiInfo(apiInfo())

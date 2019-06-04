@@ -1,4 +1,4 @@
-package br.com.postalisonline.api.bean;
+package br.com.postalisonline.identitymanager.bean;
 
 /**
  * 

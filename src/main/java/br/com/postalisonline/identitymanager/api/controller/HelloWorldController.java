@@ -1,4 +1,4 @@
-package br.com.postalisonline.api.controller;
+package br.com.postalisonline.identitymanager.api.controller;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.postalisonline.api.bean.Message;
+import br.com.postalisonline.identitymanager.bean.Message;
 import io.swagger.annotations.ApiOperation;
 
 @RestController

@@ -1,4 +1,4 @@
-package br.com.postalisonline.api.bean;
+package br.com.postalisonline.identitymanager.bean;
 
 import java.util.Map;
 
@@ -45,6 +45,7 @@ public class RequestToken {
 	public void setClaims(Map<String,Object> claims) {
 		this.claims = claims;
 	}
+	
 
 	
 }

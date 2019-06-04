@@ -4,6 +4,9 @@
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="
         http://www.springframework.org/schema/beans     
         http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -12,18 +15,54 @@
         http://www.springframework.org/schema/context 
         http://www.springframework.org/schema/context/spring-context.xsd
         http://www.springframework.org/schema/aop 
-		http://www.springframework.org/schema/aop/spring-aop-3.0.xsd"
+		http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+		http://www.springframework.org/schema/data/jpa
+     	http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+     	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+     	http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+		"
         >
  	
 	<mvc:annotation-driven />
 	
 	<!-- Buscando pelos Beans Spring -->
 	<context:component-scan
-		base-package="br.com.postalisonline.api.*" />
+		base-package="br.com.postalisonline.identitymanager.api.*" />
 	
 	<mvc:default-servlet-handler />
- 
- 
+	
+	<!-- JPA Config -->
+ 	<jpa:repositories base-package="br.com.postalisonline.identitymanager.api.repository"/>
+ 	
+ 	<beans:bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+    	<beans:property name="jndiName" value="java:jboss/datasources/PostalisDS"/>
+	</beans:bean>
+	
+	<bean id="entityManagerFactory"
+	  class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+	    <!-- <property name="dataSource" ref="dataSource" /> -->
+	    <property name="persistenceUnitName" value="postalis-api-im"/>
+	    <property name="packagesToScan" value="br.com.postalisonline.identitymanager.api.entity" />
+	    <property name="jpaVendorAdapter">
+	        <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+	    </property>
+	    <!-- <property name="jpaProperties">
+	        <props>
+	            <prop key="hibernate.hbm2ddl.auto">create-drop</prop>
+	            <prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+	        </props>
+	    </property> -->
+	</bean>
+	<!-- <bean id="entityManager" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean">
+      <property name="persistenceUnitName" value="postalis-api-im"/>
+   </bean> -->
+   <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+	    <property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+	<tx:annotation-driven />
+    <!-- End JPA Config -->
+    
 	<bean id="viewResolver"
 		class="org.springframework.web.servlet.view.UrlBasedViewResolver">
 		<property name="viewClass"

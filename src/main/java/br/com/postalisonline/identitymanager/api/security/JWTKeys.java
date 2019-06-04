@@ -1,4 +1,4 @@
-package br.com.postalisonline.api.security;
+package br.com.postalisonline.identitymanager.api.security;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;

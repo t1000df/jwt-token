@@ -1,4 +1,4 @@
-package br.com.postalisonline.api.service.impl;
+package br.com.postalisonline.identitymanager.api.service.impl;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -11,15 +11,18 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import br.com.postalisonline.api.bean.RequestToken;
-import br.com.postalisonline.api.bean.ResponseToken;
-
-import br.com.postalisonline.api.security.JWTKeys;
-import br.com.postalisonline.api.security.JWTRS512Builder;
-import br.com.postalisonline.api.security.JWTValidateException;
-
-import br.com.postalisonline.api.service.JWTException;
-import br.com.postalisonline.api.service.JWTService;
+import br.com.postalisonline.identitymanager.api.configuration.KeysConfig;
+import br.com.postalisonline.identitymanager.api.model.UserCredential;
+import br.com.postalisonline.identitymanager.api.security.Cripto;
+import br.com.postalisonline.identitymanager.api.security.JWTKeys;
+import br.com.postalisonline.identitymanager.api.security.JWTRS512Builder;
+import br.com.postalisonline.identitymanager.api.security.JWTValidateException;
+import br.com.postalisonline.identitymanager.api.service.JWTException;
+import br.com.postalisonline.identitymanager.api.service.JWTService;
+import br.com.postalisonline.identitymanager.api.service.UserService;
+import br.com.postalisonline.identitymanager.bean.RequestAPIToken;
+import br.com.postalisonline.identitymanager.bean.RequestToken;
+import br.com.postalisonline.identitymanager.bean.ResponseToken;
 import io.jsonwebtoken.Claims;
 
 /**
@@ -38,6 +41,9 @@ public class JWTServiceImpl implements JWTService {
 	
 	@Autowired
 	JWTKeys jwtKeys;
+	
+	@Autowired
+	UserService userService;
 	
 	@PostConstruct
 	private void generateKeys() {
@@ -61,6 +67,20 @@ public class JWTServiceImpl implements JWTService {
 	@Override
 	public ResponseToken generate(RequestToken requestToken) {
 		
+		//recuperando os dados do usuário
+		UserCredential credential = userService.findByCPF(requestToken.getUser());
+		
+		if (credential == null) {
+			return null;
+		}
+		
+		String password = Cripto.criptografar(requestToken.getPassword()).trim();
+		String userPassword = credential.getSenha().trim();
+		
+		if (!password.equals(userPassword)) {
+			return null;
+		}
+		
 		ResponseToken tokenBean = new ResponseToken();
 		
 		Map<String,Object> claims = new HashMap<String,Object>();
@@ -74,6 +94,10 @@ public class JWTServiceImpl implements JWTService {
 		
 		//adicionando o escopo do token
 		claims.put("scope", scope);
+		claims.put("nome", credential.getNome());
+		claims.put("cpf", credential.getCPF());
+		claims.put("matricula", credential.getMatricula());
+		claims.put("type-access", "user-credentials");
 		
 		if (requestToken.getClaims() !=null && !requestToken.getClaims().isEmpty()) {
 			//adicionando os claims solicitados para o token
@@ -96,6 +120,55 @@ public class JWTServiceImpl implements JWTService {
 		
 	}
 	
+	@Override
+	public ResponseToken generate(RequestAPIToken requestToken) {
+		
+		//validando o API Key
+		String apiKey = requestToken.getApi();
+		
+		if (!KeysConfig.exists(apiKey)) {
+			return null;
+		}
+		
+		String clientKey = KeysConfig.clientKey(apiKey);
+		
+		ResponseToken tokenBean = new ResponseToken();
+		
+		Map<String,Object> claims = new HashMap<String,Object>();
+		
+		//tratamento do escopo
+		String[] scope = (requestToken.getScope()==null  ) ? new String[]{"default"} : requestToken.getScope();
+		
+		if (scope.length == 0) {
+			scope = new String[]{"default"};
+		}
+		
+		//adicionando o escopo do token
+		claims.put("scope", scope);
+		claims.put("nome", clientKey);
+		claims.put("type-access", "api-key");
+				
+		if (requestToken.getClaims() !=null && !requestToken.getClaims().isEmpty()) {
+			//adicionando os claims solicitados para o token
+			for (String key: requestToken.getClaims().keySet()) {
+				claims.put(key, requestToken.getClaims().get(key));
+			}
+		}
+		
+		//gerando o accesstoken
+		String token = generateAccessToken(clientKey, null,claims);
+		tokenBean.setAccessToken(token);
+		
+		//gerando o refreshtoken
+		Map<String,Object> claimsR = new HashMap<String,Object>();
+		claimsR.put("type", "refresh-token");
+		String refreshToken = generateRefreshToken(clientKey, null, claims, claimsR);
+		tokenBean.setRefreshToken(refreshToken);
+		
+		return tokenBean;
+		
+	}
+	
 	private String generateAccessToken(String id, String subject, Map<String,Object> claims) {
 		
 		claims.put("type", "access-token");
@@ -108,12 +181,17 @@ public class JWTServiceImpl implements JWTService {
 	private String generateRefreshToken(String id, String subject, Map<String,Object> claimsA,  Map<String,Object> claimsR) {
 		
 		String id64 = Base64.getEncoder().encodeToString(id.getBytes());
-		String subject64 = Base64.getEncoder().encodeToString(subject.getBytes());
+		String subject64 = "";
+		
+		if (subject != null) {
+			subject64 = Base64.getEncoder().encodeToString(subject.getBytes());
+		}
+		
 		
 		//adicionando os claims do accessToken no refreshToken.
 		//Essa operação é necessária para gerar um novo accessToken apartir de uma solicitação de refresh.
 		for (String key: claimsA.keySet()) {
-			if (key.equals("jti") || key.equals("type")) {
+			if (key.equals("jti") || key.equals("type") ) {
 				continue;
 			}
 			claimsR.put("accessToken-"+key, claimsA.get(key));
@@ -193,12 +271,11 @@ public class JWTServiceImpl implements JWTService {
 			}
 			
 			String id = (String) claimsA.get("jti");
-			String iss = "postalis-api";
 			String sub = (String) claimsA.get("sub");
 			
 			//Gerando novo accessToken
-			String newAccessToken =  jwtBuilder.generateToken(jwtKeys.getPrivateKey(), id, sub, iss, jwtBuilder.getTokenTimeExpiration(),claimsA);  
-			
+			String newAccessToken =  generateAccessToken(id, sub, claimsA);
+					
 			ResponseToken responseToken = new ResponseToken(newAccessToken, refreshToken);
 			
 			return responseToken;
@@ -217,5 +294,7 @@ public class JWTServiceImpl implements JWTService {
 		return Base64.getEncoder().encodeToString(jwtKeys.getPublicKey().getEncoded());
 		
 	}
+
+	
 
 }

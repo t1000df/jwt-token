@@ -1,4 +1,4 @@
-package br.com.postalisonline.api.service;
+package br.com.postalisonline.identitymanager.api.service;
 
 /**
  * 

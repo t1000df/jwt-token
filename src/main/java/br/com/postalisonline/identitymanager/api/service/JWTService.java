@@ -1,7 +1,8 @@
-package br.com.postalisonline.api.service;
+package br.com.postalisonline.identitymanager.api.service;
 
-import br.com.postalisonline.api.bean.RequestToken;
-import br.com.postalisonline.api.bean.ResponseToken;
+import br.com.postalisonline.identitymanager.bean.RequestAPIToken;
+import br.com.postalisonline.identitymanager.bean.RequestToken;
+import br.com.postalisonline.identitymanager.bean.ResponseToken;
 
 /**
  * 
@@ -11,6 +12,8 @@ import br.com.postalisonline.api.bean.ResponseToken;
 public interface JWTService {
 	
 	public ResponseToken generate(RequestToken request) ;
+	
+	public ResponseToken generate(RequestAPIToken request) ;
 	
 	public String generateFake();
 	
