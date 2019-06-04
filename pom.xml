@@ -8,7 +8,7 @@
   
   <properties>
 	<spring.version>5.1.6.RELEASE</spring.version>
-	<spring.data.jpa.version>2.1.8.RELEASE</spring.data.jpa.version>
+	<spring.data.jpa.version>[2.1.8,)</spring.data.jpa.version>
 	<java.version>1.8</java.version>
 	<io.jsonwebtoken.version>0.10.5</io.jsonwebtoken.version>
 	<log4j.version>1.2.17</log4j.version>
