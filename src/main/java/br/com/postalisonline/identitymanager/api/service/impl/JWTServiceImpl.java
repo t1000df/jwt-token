@@ -191,7 +191,7 @@ public class JWTServiceImpl implements JWTService {
 		//adicionando os claims do accessToken no refreshToken.
 		//Essa operação é necessária para gerar um novo accessToken apartir de uma solicitação de refresh.
 		for (String key: claimsA.keySet()) {
-			if (key.equals("jti") || key.equals("type")) {
+			if (key.equals("jti") || key.equals("type") ) {
 				continue;
 			}
 			claimsR.put("accessToken-"+key, claimsA.get(key));
@@ -271,12 +271,11 @@ public class JWTServiceImpl implements JWTService {
 			}
 			
 			String id = (String) claimsA.get("jti");
-			String iss = "postalis-api";
 			String sub = (String) claimsA.get("sub");
 			
 			//Gerando novo accessToken
-			String newAccessToken =  jwtBuilder.generateToken(jwtKeys.getPrivateKey(), id, sub, iss, jwtBuilder.getTokenTimeExpiration(),claimsA);  
-			
+			String newAccessToken =  generateAccessToken(id, sub, claimsA);
+					
 			ResponseToken responseToken = new ResponseToken(newAccessToken, refreshToken);
 			
 			return responseToken;
